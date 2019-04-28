@@ -1,0 +1,36 @@
+apply plugin: 'maven-publish'
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'com.mine'
+version = '1.0.1-SNAPSHOT'
+
+repositories{
+    mavenCentral()
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    compile 'com.google.guava:guava:27.0-jre'
+    testCompile 'junit:junit:4.12'
+    //compile 'org.apache.commons:commons-lang3:3.8.1'
+}
+
+publishing {
+    repositories {
+        maven {
+            url = 'https://artifactory.mine.net/artifactory/my-snapshots-maven'
+            credentials {
+                username 'user'
+                password 'password'
+            }
+        }
+    }
+    publications{
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}

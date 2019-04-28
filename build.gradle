@@ -1,0 +1,73 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+      url "https://plugins.gradle.org/m2/"
+      }        
+    }
+    dependencies {
+
+        //Sonarplugin legacy 
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7"
+        //Check for the latest version here: http://plugins.gradle.org/plugin/com.jfrog.artifactory
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+    }
+}
+
+//Plugins section for CI
+allprojects {
+    apply plugin: 'war'
+    apply plugin: 'org.sonarqube'
+    apply plugin: 'java'
+    apply plugin: 'application'
+    apply plugin: 'maven-publish'
+    apply plugin: "com.jfrog.artifactory"
+version = '1.0.0-SNAPSHOT'
+group = 'com.sriram'
+} 
+
+// Project Dependencies
+dependencies {
+    // This dependency is found on compile classpath of this component and consumers.
+    compile 'com.google.guava:guava:20.0'
+
+    // Use JUnit test framework
+    testCompile 'junit:junit:4.12'
+}
+
+// Artifactory configuration
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"
+    publish {
+        repository {
+            repoKey = "gradle-dev-local"
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }       
+defaults {
+            publications ('mavenJava')
+        }
+    }
+war {
+        classpath configurations.compile
+    }
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.web
+                // artifact(file('build/libs/demo-1.0.0-SNAPSHOT.war'))
+        }
+    }
+    }
+resolve {
+        repository {
+            repoKey = 'gradle-dev'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+}
+}
+// Define the main class for the application
+mainClassName = 'App'
